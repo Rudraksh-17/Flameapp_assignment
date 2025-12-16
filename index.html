@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Bezier Rope Simulation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        /* =======================
+   GLOBAL STYLES
+========================= */
+       html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #0d1117;
+    font-family: sans-serif;
+}
+
+/* Main app grid */
+#app {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    height: 100vh;
+}
+
+/* Canvas container — left-oriented, smaller canvas with room for remote */
+#canvasContainer {
+    position: relative;
+    min-height: 0; /* IMPORTANT for grid layouts */
+    padding-right: 220px; /* keeps interactive area clear of the control remote */
+    width: 65%;
+    max-width: 960px;
+    height: calc(100vh - 48px);
+    margin-left: 20px;
+    margin-top: 20px;
+}
+
+/* Canvas fills the smaller left container */
+#bezierCanvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    background: linear-gradient(180deg, #071021, #001018);
+}
+
+@media (max-width: 900px) {
+    #canvasContainer { width: 90%; max-width: none; padding-right: 220px; }
+}
+
+@media (max-width: 640px) {
+    #canvasContainer { width: 100%; padding-right: 0; margin-left: 0; margin-top: 0; height: calc(100vh - 56px); }
+    #bezierCanvas { border-radius: 0; box-shadow: none; }
+}
+
+
+/* Control panel styled as a vertical "remote" fixed to the right */
+#controlPanel {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    width: 200px;
+    max-width: calc(100% - 40px);
+    background: linear-gradient(180deg, rgba(2,6,23,0.95), rgba(2,6,23,0.85));
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6), 0 2px 6px rgba(255,255,255,0.02) inset;
+    border: 1px solid rgba(255,255,255,0.06);
+    z-index: 9999;
+}
+
+/* Individual control cells - full width stacked */
+.control {
+    background: rgba(255,255,255,0.03);
+    padding: 10px;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+}
+.control label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.control input[type="range"] {
+    width: 100%;
+}
+
+.control input[type="checkbox"] {
+    margin-right: 6px;
+}
+
+.control button {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background: #238636;
+    color: white;
+    font-size: 14px;
+}
+
+.control button:hover {
+    background: #2ea043;
+}
+
+/* Responsive: collapse to bottom bar on narrow screens */
+@media (max-width: 640px) {
+    #controlPanel {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: auto;
+        transform: none;
+        flex-direction: row;
+        justify-content: space-around;
+        width: 100%;
+        padding: 8px 10px;
+        border-radius: 0;
+    }
+    .control { font-size: 12px; padding: 8px; }
+}
+
+
+    </style>
+
+</head>
+
+<body>
+
+<div id="app">
+    <div id="canvasContainer">
+        <canvas id="bezierCanvas"></canvas>
+    </div>
+
+    <!-- Control Panel -->
+    <div id="controlPanel">
+
+    <div class="control">
+        <label>
+            <input type="checkbox" id="showTangents" checked>
+            Show Tangents
+        </label>
+    </div>
+
+    <div class="control">
+        <label>
+            <input type="checkbox" id="showPoints" checked>
+            Show Points
+        </label>
+    </div>
+
+    <div class="control">
+        <label>
+            Spring
+            <input type="range" id="springSlider" min="2" max="20" value="8">
+        </label>
+    </div>
+
+    <div class="control">
+        <label>
+            Damping
+            <input type="range" id="dampingSlider" min="1" max="10" value="4">
+        </label>
+    </div>
+
+    <div class="control">
+        <button id="resetBtn">Reset Points</button>
+    </div>
+
+    
+
+    <div class="control">
+        <label>
+            <input type="checkbox" id="showFPS" checked>
+            Show FPS
+        </label>
+    </div>
+
+    <div class="control" id="fpsDisplay">
+        FPS: 0
+    </div>
+
+    <div class="control">
+        <label>
+            Zoom
+            <input type="range" id="zoomSlider" min="1" max="10" value="1" step="0.5">
+        </label>
+    </div>
+
+    <div class="control">
+        <label>
+            <input type="checkbox" id="showCoords" checked>
+            Show Coords
+        </label>
+    </div>
+
+</div>
+
+<div id="coordsDisplay" style="position: fixed; bottom: 20px; left: 20px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 6px; color: #0f0; font-family: monospace; font-size: 12px; display: none; z-index: 9998; border: 1px solid rgba(15,255,0,0.3);">
+    Mouse: (0, 0)<br>
+    P1: (0, 0)<br>
+    P2: (0, 0)
+</div>
+
+    
+
+    <!-- BACKEND LOGIC WILL BE ADDED HERE -->
+    <script src="script.js"></script>
+
+</body>
+
+</html>
