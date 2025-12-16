@@ -4,18 +4,18 @@ An interactive 2D Bezier curve visualization with spring-damping physics simulat
 
 ## Features
 
-✨ **Interactive Physics**
+ **Interactive Physics**
 - Real-time spring-damping simulation
 - Adjustable spring constant and damping
 - Smooth control point animation
 
-🎮 **Navigation & Control**
+ **Navigation & Control**
 - Pan with Space + drag or middle-mouse drag
 - Zoom with Ctrl + mouse wheel (0.5x to 10x)
 - Double-click canvas to place rope targets
 - Reset view and reset points buttons
 
-📊 **Visualization**
+ **Visualization**
 - Real-time Bezier curve rendering
 - Tangent vector display
 - Control point indicators
@@ -128,4 +128,5 @@ Potential features for expansion:
 
 ---
 
-**Enjoy playing with physics!** 🎈
+**Enjoy playing with physics!** 
+
